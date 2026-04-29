@@ -1,0 +1,10 @@
+{
+  "manifest_version": 3,
+  "name": "Data Extractor",
+  "version": "2.0",
+  "description": "YOUCONTROL - CARS",
+  "permissions": ["activeTab", "scripting"],
+  "action": {
+    "default_popup": "ycCars.html"
+  }
+}
