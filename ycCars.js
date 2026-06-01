@@ -1,7 +1,9 @@
-document.getElementById('extract').addEventListener('click', async () => {
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+const api = typeof browser !== "undefined" ? browser : chrome;
 
-  chrome.scripting.executeScript({
+document.getElementById('extract').addEventListener('click', async () => {
+  const [tab] = await api.tabs.query({ active: true, currentWindow: true });
+
+  api.scripting.executeScript({
     target: { tabId: tab.id },
     function: scrapeData,
   }, async (results) => {
@@ -24,31 +26,53 @@ document.getElementById('extract').addEventListener('click', async () => {
 
 // Ця функція виконується безпосередньо на сторінці сайту
 function scrapeData() {
-  const cars = document.querySelector("#vehicle-owned-data");
+  ycSelectors = [
+    {
+      desc: "Private Person",
+      sel: "#vehicle-owned-data",
+      getValueFrom: (car, col) => car.querySelector(
+        `.np-debtor-table-body-col:nth-child(${col})`
+      )?.innerText.trim(),
+      getDetailValueFrom: (car, col) => car.querySelector(
+        `.np-debtor-detail-row tr:nth-child(${col}) td:nth-child(2)`
+      )?.innerText.trim()
+    },
+    {
+      desc: "Enterprise",
+      sel: "#tab-vehiclesprops",
+      getValueFrom: (car, col) => car.cells[col-1]?.innerText.trim(),
+      getDetailValueFrom: (car, col) => car.nextElementSibling
+        .querySelector("table")?.rows[col-1].cells[1]
+        .innerText.trim()
+    }
+  ];
+
   var rows = [];
-  if (cars) {
-    var i = 0;
-    while (true) {
-      const car = cars.querySelector(`[data-key='${i}']`);
-      if (!car) break;
-      const getSelector = (col) => `.np-debtor-table-body-col:nth-child(${col})`;
-      const getDetailSelector = (col) => `.np-debtor-detail-row tr:nth-child(${col}) td:nth-child(2)`;
-      rows.push({
-        carType: car.querySelector(getSelector(6)).innerText.trim().toLowerCase(),
-        carShell: car.querySelector(getSelector(7)).innerText.trim().toLowerCase(),
-        carMark: car.querySelector(getSelector(2)).innerText.trim(),
-        carModel: car.querySelector(getSelector(3)).innerText.trim(),
-        carNumber: car.querySelector(getSelector(1)).innerText.trim(),
-        carYear: car.querySelector(getSelector(4)).innerText.trim(),
-        carColor: car.querySelector(getSelector(5)).innerText.toLowerCase(),
-        carAuthDate: car.querySelector(getDetailSelector(1)).innerText.trim(),
-        carOper: car.querySelector(getDetailSelector(3)).innerText.toLowerCase()
-      });
-      i++;
+  for (const { desc, sel, getValueFrom, getDetailValueFrom } of ycSelectors) {
+    const cars = document.querySelector(sel);
+    if (cars) {
+      var i = 0;
+      while (true) {
+        const car = cars.querySelector(`[data-key='${i}']`);
+        if (!car) break;
+        rows.push({
+          // TECH DEBT!
+          carType: getValueFrom(car, 6)?.toLowerCase(),
+          carShell: getValueFrom(car, 7)?.toLowerCase(),
+          carMark: getValueFrom(car, 2),
+          carModel: getValueFrom(car, 3),
+          carNumber: getValueFrom(car, 1),
+          carYear: getValueFrom(car, 4),
+          carColor: getValueFrom(car, 5)?.toLowerCase(),
+          carAuthDate: getDetailValueFrom(car, 1),
+          carOper: getDetailValueFrom(car, 3)?.toLowerCase()
+        });
+        i++;
+      }
     }
   }
   return {
-    title: document.getElementsByClassName("yc-switcher-name")[0].innerText.trim(),
+    title: document.querySelector(".yc-switcher-name,#card-reverse-name").innerText.trim(),
     rows: rows,
     url: window.location.href
   };
