@@ -30,20 +30,14 @@ function scrapeData() {
     {
       desc: "Private Person",
       sel: "#vehicle-owned-data",
-      getValueFrom: (car, col) => car.querySelector(
-        `.np-debtor-table-body-col:nth-child(${col})`
-      )?.innerText.trim(),
-      getDetailValueFrom: (car, col) => car.querySelector(
-        `.np-debtor-detail-row tr:nth-child(${col}) td:nth-child(2)`
-      )?.innerText.trim()
+      getValueFrom: (car, col) => car.querySelector(`.np-debtor-table-body-col:nth-child(${col})`)?.innerText.trim(),
+      getDetailValueFrom: (car, col) => car.querySelector(`.np-debtor-detail-row tr:nth-child(${col}) td:nth-child(2)`)?.innerText.trim()
     },
     {
       desc: "Enterprise",
       sel: "#tab-vehiclesprops",
       getValueFrom: (car, col) => car.cells[col-1]?.innerText.trim(),
-      getDetailValueFrom: (car, col) => car.nextElementSibling
-        .querySelector("table")?.rows[col-1].cells[1]
-        .innerText.trim()
+      getDetailValueFrom: (car, col) => car.nextElementSibling.querySelector("table")?.rows[col-1].cells[1].innerText.trim()
     }
   ];
 
