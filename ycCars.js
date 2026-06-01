@@ -12,11 +12,13 @@ document.getElementById('extract').addEventListener('click', async () => {
       const cnt = data.rows.length;
       const carDescRows = data.rows.map((row, i) => 
         `${i + 1}) ${row.carType}${(row.carShell===row.carType ? '' : ` ${row.carShell}`)} ${row.carMark} ${row.carModel}, ${row.carYear} р.в.${(row.carNumber.toLowerCase()==='не визначено' ? '': `, днз: ${row.carNumber}` )}, ${row.carColor}, у власності з ${row.carAuthDate}, ${row.carOper}${i === cnt - 1 ? '.' : ';'}`
+          .replace(' тз', ' ТЗ')
+          .replace(' на нов. власн.', ' на нового власника')
       );
       // Формуємо фінальний рядок
       document.getElementById('personId').textContent = data.title;
       document.getElementById('result').innerHTML = carDescRows.map((row) =>
-        `<div>${row.replace(' тз', ' ТЗ').replace(' на нов. власн.', ' на нового власника')}</div>`
+        `<div>${row}</div>`
       ).join('\n');
       await navigator.clipboard.writeText(carDescRows.join('\n'));
       document.getElementById('url').textContent = data.url;
