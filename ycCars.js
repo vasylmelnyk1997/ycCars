@@ -11,7 +11,7 @@ document.getElementById('extract').addEventListener('click', async () => {
       const data = results[0].result;
       const cnt = data.rows.length;
       const carDescRows = data.rows.map((row, i) => 
-        `${i + 1}) ${row.carType}${(row.carShell===row.carType ? '' : ` ${row.carShell}`)} ${row.carMark} ${row.carModel}, ${row.carYear} р.в.${(row.carNumber.toLowerCase()==='не визначено' ? '': `, днз: ${row.carNumber}` )}, ${row.carColor}, у власності з ${row.carAuthDate}, ${row.carOper}${i === cnt - 1 ? '.' : ';'}`
+        `${i + 1}) ${row.carType}${(row.carShell===row.carType ? '' : ` ${row.carShell}`)} ${row.carMark} ${row.carModel}, ${row.carYear} р.в., ${row.carColor}${(row.carNumber.toLowerCase()==='не визначено' ? '': `, днз: ${row.carNumber}` )}, у власності з ${row.carAuthDate}, ${row.carOper}${i === cnt - 1 ? '.' : ';'}`
           .replace(' тз', ' ТЗ')
           .replace(' на нов. власн.', ' на нового власника')
       );
